@@ -138,6 +138,8 @@ jobs:
           find build/test/fuzz -name 'crash-*' -exec cp {} fuzzing_repo/crashes/ \; 2>/dev/null || true
           cp -r build/coverage_report/* fuzzing_repo/coverage/ 2>/dev/null || true
           cp build/coverage.lcov fuzzing_repo/coverage.lcov 2>/dev/null || true
+          # Expose the coverage report at the repository root for GitHub Pages.
+          cp build/coverage_report/index.html fuzzing_repo/index.html 2>/dev/null || true
 
           cd fuzzing_repo
           git add .
