@@ -191,8 +191,12 @@ jobs:
           for f in build/test/fuzz/fuzz_*; do
             name=$(basename "$f")
             mkdir -p "build/test/fuzz/corpus/$name"
+            dict_arg=""
+            if [ -f "test/fuzz/dicts/$name.dict" ]; then
+              dict_arg="-dict=test/fuzz/dicts/$name.dict"
+            fi
             echo "=== Running $f ==="
-            "$f" "build/test/fuzz/corpus/$name" -max_total_time=30 || true
+            "$f" "build/test/fuzz/corpus/$name" $dict_arg -max_total_time=30 || true
           done
 
       - name: Process coverage data
@@ -230,7 +234,7 @@ jobs:
             fi
           fi
 
-          mkdir -p fuzzing_repo/fuzz_corpora fuzzing_repo/crashes fuzzing_repo/coverage
+          mkdir -p fuzzing_repo/fuzz_corpora fuzzing_repo/fuzz_dicts fuzzing_repo/crashes fuzzing_repo/coverage
           for d in build/test/fuzz/corpus/fuzz_*; do
             name=$(basename "$d")
             mkdir -p "fuzzing_repo/fuzz_corpora/$name"
@@ -240,6 +244,7 @@ jobs:
           mkdir -p fuzzing_repo/crashes
           rm -rf fuzzing_repo/crashes/*
           find build/test/fuzz -name 'crash-*' -exec cp {} fuzzing_repo/crashes/ \; 2>/dev/null || true
+          cp test/fuzz/dicts/*.dict fuzzing_repo/fuzz_dicts/ 2>/dev/null || true
           mkdir -p fuzzing_repo/coverage
           rm -rf fuzzing_repo/coverage/*
           cp -r build/coverage_report/* fuzzing_repo/coverage/ 2>/dev/null || true
