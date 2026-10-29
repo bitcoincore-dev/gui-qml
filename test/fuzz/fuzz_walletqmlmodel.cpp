@@ -5,7 +5,7 @@
 #include <qml/models/walletqmlmodel.h>
 
 #include <QByteArray>
-#include <QCoreApplication>
+#include <QApplication>
 #include <QString>
 
 #include <cstddef>
@@ -14,7 +14,7 @@
 static int argc = 1;
 static char arg0[] = "fuzz_walletqmlmodel";
 static char* argv[] = {arg0, nullptr};
-static QCoreApplication app(argc, argv);
+static QApplication app(argc, argv);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {

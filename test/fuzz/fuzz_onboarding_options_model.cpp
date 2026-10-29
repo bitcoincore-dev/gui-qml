@@ -5,7 +5,7 @@
 #include <qml/models/onboardingoptionsmodel.h>
 
 #include <QByteArray>
-#include <QCoreApplication>
+#include <QApplication>
 #include <QDir>
 #include <QSettings>
 #include <QTemporaryDir>
@@ -18,14 +18,14 @@
 static int argc = 1;
 static char arg0[] = "fuzz_onboarding_options_model";
 static char* argv[] = {arg0, nullptr};
-static QCoreApplication app(argc, argv);
+static QApplication app(argc, argv);
 
 static QTemporaryDir g_settings_dir;
 
 static void ClearSettingsDir()
 {
     if (!g_settings_dir.isValid()) return;
-    const QDir dir(g_settings_dir.path());
+    QDir dir(g_settings_dir.path());
     for (const QString& entry : dir.entryList(QDir::Files)) {
         dir.remove(entry);
     }
@@ -80,7 +80,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         model.setTorAddress(FuzzString(payload, payload_size));
         break;
     case 8:
-        model.setDataDir(FuzzString(payload, payload_size));
+        model.selectCustomDataDir(FuzzString(payload, payload_size));
         break;
     case 9:
         model.selectCustomDataDir(FuzzString(payload, payload_size));

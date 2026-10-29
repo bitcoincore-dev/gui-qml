@@ -8,7 +8,7 @@
 #include <util/chaintype.h>
 
 #include <QByteArray>
-#include <QCoreApplication>
+#include <QApplication>
 #include <QString>
 
 #include <cstddef>
@@ -17,7 +17,7 @@
 static int argc = 1;
 static char arg0[] = "fuzz_send_recipient";
 static char* argv[] = {arg0, nullptr};
-static QCoreApplication app(argc, argv);
+static QApplication app(argc, argv);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
@@ -58,7 +58,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
                 recipient.setMessage(text);
                 break;
             case 3:
-                recipient.setAmount(text);
+                recipient.amount()->fromDisplay(text);
                 break;
             }
             ++field;

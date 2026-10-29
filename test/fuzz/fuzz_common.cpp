@@ -4,7 +4,7 @@
 
 #include <util/translation.h>
 
-#include <QCoreApplication>
+#include <QApplication>
 
 #include <functional>
 #include <string>

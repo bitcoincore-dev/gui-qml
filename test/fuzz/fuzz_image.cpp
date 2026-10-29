@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <QByteArray>
-#include <QCoreApplication>
+#include <QApplication>
 #include <QImage>
 
 #include <cstddef>
@@ -12,7 +12,7 @@
 static int argc = 1;
 static char arg0[] = "fuzz_image";
 static char* argv[] = {arg0, nullptr};
-static QCoreApplication app(argc, argv);
+static QApplication app(argc, argv);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {

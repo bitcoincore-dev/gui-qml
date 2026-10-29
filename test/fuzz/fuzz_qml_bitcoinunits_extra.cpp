@@ -5,7 +5,7 @@
 #include <qml/bitcoinunits.h>
 
 #include <QByteArray>
-#include <QCoreApplication>
+#include <QApplication>
 
 #include <cstddef>
 #include <cstdint>
@@ -13,7 +13,7 @@
 static int argc = 1;
 static char arg0[] = "fuzz_qml_bitcoinunits_extra";
 static char* argv[] = {arg0, nullptr};
-static QCoreApplication app(argc, argv);
+static QApplication app(argc, argv);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {

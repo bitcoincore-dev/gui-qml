@@ -11,7 +11,7 @@
 #include <net_processing.h>
 
 #include <QByteArray>
-#include <QCoreApplication>
+#include <QApplication>
 #include <QString>
 #include <QStringList>
 
@@ -24,13 +24,13 @@
 static int argc = 1;
 static char arg0[] = "fuzz_peer_list_sort_proxy";
 static char* argv[] = {arg0, nullptr};
-static QCoreApplication app(argc, argv);
+static QApplication app(argc, argv);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     MockNode node;
 
-    NodesStats stats;
+    interfaces::Node::NodesStats stats;
     const QByteArray raw(reinterpret_cast<const char*>(data), static_cast<int>(size));
     const QString text = QString::fromUtf8(raw);
     const QStringList lines = text.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
@@ -43,7 +43,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         stats.emplace_back(node_stats, true, state_stats);
     }
 
-    node.get_nodes_stats_fn = [&stats](NodesStats& out) {
+    node.get_nodes_stats_fn = [&stats](interfaces::Node::NodesStats& out) {
         out = stats;
         return true;
     };
@@ -76,7 +76,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     (void)proxy.rowCount();
-    (void)proxy.count();
     (void)proxy.indexOfNodeId(0);
     return 0;
 }

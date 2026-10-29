@@ -5,7 +5,7 @@
 #include <qml/peerstatsutil.h>
 
 #include <QByteArray>
-#include <QCoreApplication>
+#include <QApplication>
 
 #include <cstddef>
 #include <cstdint>
@@ -13,7 +13,7 @@
 static int argc = 1;
 static char arg0[] = "fuzz_peerstatsutil";
 static char* argv[] = {arg0, nullptr};
-static QCoreApplication app(argc, argv);
+static QApplication app(argc, argv);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
@@ -28,7 +28,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     (void)PeerStatsUtil::FormatBytes(bytes);
     (void)PeerStatsUtil::FormatTimeOffset(offset);
-    (void)PeerStatsUtil::FormatPingTime(std::chrono::nanoseconds(offset));
+    (void)PeerStatsUtil::FormatPingTime(std::chrono::duration_cast<NodeClock::duration>(std::chrono::nanoseconds(offset)));
     (void)PeerStatsUtil::FormatDurationStr(std::chrono::nanoseconds(offset));
     return 0;
 }

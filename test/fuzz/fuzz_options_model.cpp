@@ -13,7 +13,7 @@
 #include <qml/guiargs.h>
 
 #include <QByteArray>
-#include <QCoreApplication>
+#include <QApplication>
 #include <QDir>
 #include <QSettings>
 #include <QTemporaryDir>
@@ -28,7 +28,7 @@ namespace {
 static int argc = 1;
 static char arg0[] = "fuzz_options_model";
 static char* argv[] = {arg0, nullptr};
-static QCoreApplication app(argc, argv);
+static QApplication app(argc, argv);
 
 static bool params_selected = false;
 static QTemporaryDir g_settings_dir;
@@ -44,7 +44,7 @@ void EnsureParamsSelected()
 void ClearSettingsDir()
 {
     if (!g_settings_dir.isValid()) return;
-    const QDir dir(g_settings_dir.path());
+    QDir dir(g_settings_dir.path());
     for (const QString& entry : dir.entryList(QDir::Files)) {
         dir.remove(entry);
     }
@@ -82,7 +82,13 @@ void WireNode(MockNode& node, ArgsManager& args)
         });
     };
     node.force_setting_fn = [&args](const std::string& name, const common::SettingsValue& value) {
-        args.ForceSetArg(name, value);
+        args.LockSettings([&](common::Settings& settings) {
+            if (value.isNull()) {
+                settings.forced_settings.erase(name);
+            } else {
+                settings.forced_settings[name] = value;
+            }
+        });
     };
 }
 } // namespace
