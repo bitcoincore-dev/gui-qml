@@ -171,15 +171,16 @@ jobs:
         env:
           EXTERNAL_REPO_PAT: ${{ secrets.EXTERNAL_REPO_PAT }}
         run: |
-          mkdir -p build/test/fuzz/corpus
           if [ -n "${EXTERNAL_REPO_PAT}" ]; then
             git clone https://x-access-token:${EXTERNAL_REPO_PAT}@github.com/bitcoincore-dev/gui-qml-fuzzing.git fuzzing_repo || true
-            if [ -d fuzzing_repo/corpus ]; then
-              cp -r fuzzing_repo/corpus/* build/test/fuzz/corpus/ 2>/dev/null || true
-            fi
-          else
-            echo "No EXTERNAL_REPO_PAT; starting with empty corpus."
           fi
+          for f in build/test/fuzz/fuzz_*; do
+            name=$(basename "$f")
+            mkdir -p "build/test/fuzz/corpus/$name"
+            if [ -d "fuzzing_repo/fuzz_corpora/$name" ]; then
+              cp -r "fuzzing_repo/fuzz_corpora/$name/"* "build/test/fuzz/corpus/$name/" 2>/dev/null || true
+            fi
+          done
 
       - name: Run fuzz targets
         env:
@@ -188,8 +189,10 @@ jobs:
           LLVM_PROFILE_FILE: "build/test/fuzz/fuzz-%p.profraw"
         run: |
           for f in build/test/fuzz/fuzz_*; do
+            name=$(basename "$f")
+            mkdir -p "build/test/fuzz/corpus/$name"
             echo "=== Running $f ==="
-            "$f" build/test/fuzz/corpus -max_total_time=30 || true
+            "$f" "build/test/fuzz/corpus/$name" -max_total_time=30 || true
           done
 
       - name: Process coverage data
@@ -227,10 +230,18 @@ jobs:
             fi
           fi
 
-          mkdir -p fuzzing_repo/corpus fuzzing_repo/crashes fuzzing_repo/coverage
-          rm -rf fuzzing_repo/corpus/* fuzzing_repo/crashes/* fuzzing_repo/coverage/*
-          cp -r build/test/fuzz/corpus/* fuzzing_repo/corpus/ 2>/dev/null || true
+          mkdir -p fuzzing_repo/fuzz_corpora fuzzing_repo/crashes fuzzing_repo/coverage
+          for d in build/test/fuzz/corpus/fuzz_*; do
+            name=$(basename "$d")
+            mkdir -p "fuzzing_repo/fuzz_corpora/$name"
+            rm -rf "fuzzing_repo/fuzz_corpora/$name"/*
+            cp -r "$d"/* "fuzzing_repo/fuzz_corpora/$name/" 2>/dev/null || true
+          done
+          mkdir -p fuzzing_repo/crashes
+          rm -rf fuzzing_repo/crashes/*
           find build/test/fuzz -name 'crash-*' -exec cp {} fuzzing_repo/crashes/ \; 2>/dev/null || true
+          mkdir -p fuzzing_repo/coverage
+          rm -rf fuzzing_repo/coverage/*
           cp -r build/coverage_report/* fuzzing_repo/coverage/ 2>/dev/null || true
           cp build/coverage.lcov fuzzing_repo/coverage.lcov 2>/dev/null || true
           cp build/coverage_report/index.html fuzzing_repo/index.html 2>/dev/null || true
