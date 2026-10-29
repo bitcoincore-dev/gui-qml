@@ -43,3 +43,4 @@ python3 test/fuzz/qml_security_lint.py qml
 - `fuzz_bitcoin_address` - fuzzes `BitcoinAddress::setAddress`
 - `fuzz_bitcoin_amount` - fuzzes `BitcoinAmount::fromDisplay`
 - `fuzz_qml_datadir` - fuzzes `QmlDataDir` path validation/normalization
+- `fuzz_bitcoin_units` - fuzzes `QmlBitcoinUnits` formatting/labels
