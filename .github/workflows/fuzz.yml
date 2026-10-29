@@ -126,7 +126,10 @@ jobs:
           git config --global user.email "actions@github.com"
 
           if [ ! -d fuzzing_repo ]; then
-            git clone https://x-access-token:${EXTERNAL_REPO_PAT}@github.com/bitcoincore-dev/gui-qml-fuzzing.git fuzzing_repo
+            if ! git clone https://x-access-token:${EXTERNAL_REPO_PAT}@github.com/bitcoincore-dev/gui-qml-fuzzing.git fuzzing_repo 2>/dev/null; then
+              echo "External fuzzing repository not found or inaccessible; skipping push."
+              exit 0
+            fi
           fi
 
           mkdir -p fuzzing_repo/corpus fuzzing_repo/crashes fuzzing_repo/coverage
