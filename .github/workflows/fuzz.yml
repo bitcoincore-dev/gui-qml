@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [ main, master, develop ]
   workflow_dispatch:
+    inputs:
+      deploy_artifacts:
+        description: 'Push corpus/coverage/crashes to the external repository'
+        required: false
+        default: 'true'
+        type: choice
+        options: [ 'true', 'false' ]
 
 jobs:
   fuzz:
@@ -114,7 +121,7 @@ jobs:
           fi
 
       - name: Push corpus and artifacts to external repository
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && matrix.sanitizer == 'address,undefined'
+        if: matrix.sanitizer == 'address,undefined' && (github.event_name == 'push' && github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && inputs.deploy_artifacts == 'true'))
         env:
           EXTERNAL_REPO_PAT: ${{ secrets.EXTERNAL_REPO_PAT }}
         run: |
