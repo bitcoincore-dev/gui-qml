@@ -56,6 +56,7 @@ set(USE_QRCODE TRUE)
 set(BUILD_GUI ON)
 set(ENABLE_WALLET ON)
 cmake_dependent_option(BUILD_APP_TESTS "Build tests for the app" ON "BUILD_GUI" OFF)
+option(BUILD_FUZZ_TESTS "Build fuzz tests for the app backend" OFF)
 
 # Bitcoin Core codebase
 # Builds libraries: univalue, core_interface, bitcoin_node, bitcoin_wallet
@@ -222,4 +223,8 @@ if(BUILD_APP_TESTS)
   include(CTest)
   enable_testing()
   add_subdirectory(test)
+endif()
+
+if(BUILD_FUZZ_TESTS)
+  add_subdirectory(test/fuzz)
 endif()
