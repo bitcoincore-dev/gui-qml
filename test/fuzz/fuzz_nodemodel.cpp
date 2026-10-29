@@ -28,5 +28,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     (void)model.validateProxyAddress(text);
     (void)model.defaultProxyAddress();
+    (void)model.banPeer(text, size > 0 ? static_cast<int64_t>(data[0]) : 0);
     return 0;
 }

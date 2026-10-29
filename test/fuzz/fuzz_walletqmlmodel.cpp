@@ -25,5 +25,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     (void)model.receiveAddressTypeLabel(text);
     (void)model.importPsbtFromFile(text);
     (void)model.setCurrentPaymentRequestAddress(text);
+    (void)model.loadPaymentRequest(text);
+    (void)model.loadPaymentRequestDetail(text);
+    (void)model.removeReceiveRequest(text);
+    (void)model.usePaymentRequestAsTemplate(text);
     return 0;
 }
