@@ -32,6 +32,7 @@ function(add_fuzz_target name)
         Qt6::Network
         Qt6::Qml
         Qt6::Quick
+        Qt6::Svg
         Qt6::Widgets
     )
     target_compile_options(${name} PRIVATE
@@ -67,6 +68,7 @@ add_fuzz_target(fuzz_qml_bitcoinunits_extra fuzz_qml_bitcoinunits_extra.cpp)
 add_fuzz_target(fuzz_nodemodel fuzz_nodemodel.cpp)
 add_fuzz_target(fuzz_nodemodel_info fuzz_nodemodel_info.cpp)
 add_fuzz_target(fuzz_bech32 fuzz_bech32.cpp)
+add_fuzz_target(fuzz_svg fuzz_svg.cpp)
 add_fuzz_target(fuzz_transaction fuzz_transaction.cpp)
 add_fuzz_target(fuzz_walletqmlmodel fuzz_walletqmlmodel.cpp)
 add_fuzz_target(fuzz_activityfilter fuzz_activityfilter.cpp)
