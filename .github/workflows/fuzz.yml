@@ -63,7 +63,9 @@ jobs:
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DENABLE_IPC=OFF \
             -DBUILD_FUZZ_TESTS=ON \
-            -DBUILD_APP_TESTS=OFF
+            -DBUILD_APP_TESTS=OFF \
+            -DCMAKE_CXX_FLAGS="-fprofile-instr-generate -fcoverage-mapping" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fprofile-instr-generate"
 
       - name: Build fuzz targets
         run: cmake --build build --parallel
@@ -92,6 +94,21 @@ jobs:
             "$f" build/test/fuzz/corpus -max_total_time=30 || true
           done
 
+      - name: Process coverage data
+        run: |
+          mkdir -p build/coverage_report
+          if ls build/test/fuzz/*.profraw >/dev/null 2>&1; then
+            llvm-profdata merge -sparse build/test/fuzz/*.profraw -o build/test/fuzz/fuzz.profdata
+            llvm-cov show build/test/fuzz/fuzz_bitcoin_uri \
+              -instr-profile=build/test/fuzz/fuzz.profdata \
+              -format=html -output-dir=build/coverage_report \
+              -ignore-filename-regex="/usr/|tests/" 2>/dev/null || true
+            llvm-cov export build/test/fuzz/fuzz_bitcoin_uri \
+              -instr-profile=build/test/fuzz/fuzz.profdata \
+              -format=lcov \
+              -ignore-filename-regex="/usr/|tests/" > build/coverage.lcov 2>/dev/null || true
+          fi
+
       - name: Push corpus and artifacts to external repository
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
@@ -108,10 +125,12 @@ jobs:
             git clone https://x-access-token:${EXTERNAL_REPO_PAT}@github.com/bitcoincore-dev/gui-qml-fuzzing.git fuzzing_repo
           fi
 
-          mkdir -p fuzzing_repo/corpus fuzzing_repo/crashes
-          rm -rf fuzzing_repo/corpus/* fuzzing_repo/crashes/*
+          mkdir -p fuzzing_repo/corpus fuzzing_repo/crashes fuzzing_repo/coverage
+          rm -rf fuzzing_repo/corpus/* fuzzing_repo/crashes/* fuzzing_repo/coverage/*
           cp -r build/test/fuzz/corpus/* fuzzing_repo/corpus/ 2>/dev/null || true
           find build/test/fuzz -name 'crash-*' -exec cp {} fuzzing_repo/crashes/ \; 2>/dev/null || true
+          cp -r build/coverage_report/* fuzzing_repo/coverage/ 2>/dev/null || true
+          cp build/coverage.lcov fuzzing_repo/coverage.lcov 2>/dev/null || true
 
           cd fuzzing_repo
           git add .
