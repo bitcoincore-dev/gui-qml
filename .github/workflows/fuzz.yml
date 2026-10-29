@@ -174,12 +174,29 @@ jobs:
           if [ -n "${EXTERNAL_REPO_PAT}" ]; then
             git clone https://x-access-token:${EXTERNAL_REPO_PAT}@github.com/bitcoincore-dev/qa-assets.git fuzzing_repo || true
           fi
+
+          # Map QML fuzz targets to related upstream Bitcoin Core corpora so
+          # new targets start from a useful seed set rather than from scratch.
+          declare -A CORPUS_SEEDS=(
+            [fuzz_bech32]="bech32_random_decode bech32_roundtrip"
+            [fuzz_bitcoin_address]="base58_encode_decode base58check_encode_decode"
+            [fuzz_bitcoin_address_format]="base58_encode_decode"
+            [fuzz_send_recipient]="base58_encode_decode bech32_random_decode"
+            [fuzz_payment_request]="base58_encode_decode bech32_random_decode"
+            [fuzz_address_list_model]="base58_encode_decode bech32_random_decode"
+          )
+
           for f in build/test/fuzz/fuzz_*; do
             name=$(basename "$f")
             mkdir -p "build/test/fuzz/corpus/$name"
             if [ -d "fuzzing_repo/fuzz_corpora/$name" ]; then
               cp -r "fuzzing_repo/fuzz_corpora/$name/"* "build/test/fuzz/corpus/$name/" 2>/dev/null || true
             fi
+            for seed in ${CORPUS_SEEDS[$name]}; do
+              if [ -d "fuzzing_repo/fuzz_corpora/$seed" ]; then
+                cp -r "fuzzing_repo/fuzz_corpora/$seed/"* "build/test/fuzz/corpus/$name/" 2>/dev/null || true
+              fi
+            done
           done
 
       - name: Run fuzz targets
