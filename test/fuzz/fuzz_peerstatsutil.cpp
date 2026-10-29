@@ -29,5 +29,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     (void)PeerStatsUtil::FormatBytes(bytes);
     (void)PeerStatsUtil::FormatTimeOffset(offset);
     (void)PeerStatsUtil::FormatPingTime(std::chrono::nanoseconds(offset));
+    (void)PeerStatsUtil::FormatDurationStr(std::chrono::nanoseconds(offset));
     return 0;
 }
