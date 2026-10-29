@@ -56,6 +56,7 @@ jobs:
           cmake -S . -B build -G Ninja \
             -DCMAKE_CXX_COMPILER=clang++ \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DENABLE_IPC=OFF \
             -DBUILD_FUZZ_TESTS=ON \
             -DBUILD_APP_TESTS=OFF
 
