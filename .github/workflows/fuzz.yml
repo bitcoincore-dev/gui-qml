@@ -7,25 +7,66 @@ on:
     branches: [ main, master, develop ]
   workflow_dispatch:
     inputs:
+      run_asan:
+        description: 'Run AddressSanitizer + UBSan job'
+        required: false
+        default: true
+        type: boolean
+      run_ubsan:
+        description: 'Run UBSan-only job'
+        required: false
+        default: true
+        type: boolean
+      run_tsan:
+        description: 'Run ThreadSanitizer job'
+        required: false
+        default: true
+        type: boolean
       deploy_artifacts:
         description: 'Push corpus/coverage/crashes to the external repository'
         required: false
-        default: 'true'
-        type: choice
-        options: [ 'true', 'false' ]
+        default: true
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  prepare:
+    name: Prepare matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.build.outputs.matrix }}
+    steps:
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+      - id: build
+        run: |
+          sanitizers=()
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            sanitizers+=("address,undefined" "undefined" "thread")
+          else
+            [ "${{ inputs.run_asan }}" = "true" ] && sanitizers+=("address,undefined")
+            [ "${{ inputs.run_ubsan }}" = "true" ] && sanitizers+=("undefined")
+            [ "${{ inputs.run_tsan }}" = "true" ] && sanitizers+=("thread")
+          fi
+          # Always have at least one entry
+          if [ ${#sanitizers[@]} -eq 0 ]; then sanitizers+=("address,undefined"); fi
+          json=$(printf '%s\n' "${sanitizers[@]}" | jq -R . | jq -s -c .)
+          echo "matrix={\"sanitizer\":$json}" >> "$GITHUB_OUTPUT"
+
   fuzz:
     name: Fuzz QML Backend (${{ matrix.sanitizer }})
     runs-on: ubuntu-latest
+    needs: prepare
     timeout-minutes: 60
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.sanitizer }}
       cancel-in-progress: true
     strategy:
       fail-fast: false
-      matrix:
-        sanitizer: [ "address,undefined", "undefined", "thread" ]
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,6 +84,7 @@ jobs:
           sudo apt-get install -y \
             clang \
             llvm \
+            jq \
             ninja-build \
             cmake \
             build-essential \
@@ -121,7 +163,7 @@ jobs:
           fi
 
       - name: Push corpus and artifacts to external repository
-        if: matrix.sanitizer == 'address,undefined' && (github.event_name == 'push' && github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && inputs.deploy_artifacts == 'true'))
+        if: matrix.sanitizer == 'address,undefined' && (github.event_name == 'push' && github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && inputs.deploy_artifacts == true))
         env:
           EXTERNAL_REPO_PAT: ${{ secrets.EXTERNAL_REPO_PAT }}
         run: |
@@ -145,7 +187,6 @@ jobs:
           find build/test/fuzz -name 'crash-*' -exec cp {} fuzzing_repo/crashes/ \; 2>/dev/null || true
           cp -r build/coverage_report/* fuzzing_repo/coverage/ 2>/dev/null || true
           cp build/coverage.lcov fuzzing_repo/coverage.lcov 2>/dev/null || true
-          # Expose the coverage report at the repository root for GitHub Pages.
           cp build/coverage_report/index.html fuzzing_repo/index.html 2>/dev/null || true
 
           cd fuzzing_repo
