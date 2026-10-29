@@ -145,5 +145,5 @@ jobs:
             echo "No changes in fuzzing artifacts to push."
           else
             git commit -m "Auto-update fuzzing corpus and artifacts from ${{ github.sha }}"
-            git push origin main
+            git push origin master
           fi
