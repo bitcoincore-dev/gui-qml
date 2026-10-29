@@ -27,6 +27,20 @@ On Ubuntu CI, see `.github/workflows/fuzz.yml`.
 
 ## Running
 
+Run every built target for a short time (default 30 s each):
+
+```sh
+./test/fuzz/run.sh
+```
+
+Override the per-target duration:
+
+```sh
+./test/fuzz/run.sh 60
+```
+
+Run one target manually:
+
 ```sh
 ASAN_OPTIONS=detect_leaks=0 ./build-fuzz/test/fuzz/fuzz_bitcoin_uri corpus/ -max_total_time=60
 ```

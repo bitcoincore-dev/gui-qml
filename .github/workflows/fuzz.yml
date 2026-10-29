@@ -222,14 +222,23 @@ jobs:
           mkdir -p build/coverage_report
           if ls build/test/fuzz/*.profraw >/dev/null 2>&1; then
             llvm-profdata merge -sparse build/test/fuzz/*.profraw -o build/test/fuzz/fuzz.profdata
+            # Combine coverage from every fuzz binary so the report covers all targets.
+            objects=()
+            for f in build/test/fuzz/fuzz_*; do
+              [ -x "$f" ] || continue
+              [ "$(basename "$f")" = "fuzz_bitcoin_uri" ] && continue
+              objects+=("-object" "$f")
+            done
             llvm-cov show build/test/fuzz/fuzz_bitcoin_uri \
+              "${objects[@]}" \
               -instr-profile=build/test/fuzz/fuzz.profdata \
               -format=html -output-dir=build/coverage_report \
-              -ignore-filename-regex="/usr/|tests/" 2>/dev/null || true
+              -ignore-filename-regex="/usr/|test/|tests/" 2>/dev/null || true
             llvm-cov export build/test/fuzz/fuzz_bitcoin_uri \
+              "${objects[@]}" \
               -instr-profile=build/test/fuzz/fuzz.profdata \
               -format=lcov \
-              -ignore-filename-regex="/usr/|tests/" > build/coverage.lcov 2>/dev/null || true
+              -ignore-filename-regex="/usr/|test/|tests/" > build/coverage.lcov 2>/dev/null || true
           fi
 
       - name: Push corpus and artifacts to external repository
