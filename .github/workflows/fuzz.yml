@@ -2,9 +2,9 @@ name: Fuzz and Security Audit
 
 on:
   push:
-    branches: [ "main", "master", "qt6", "**" ]
+    branches: [ "**" ]
   pull_request:
-    branches: [ "main", "master", "qt6", "**" ]
+    branches: [ "**" ]
   workflow_dispatch:
     inputs:
       run_asan:
