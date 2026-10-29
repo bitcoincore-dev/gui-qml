@@ -4,6 +4,8 @@
 
 #include <qml/models/psbtqmlmodel.h>
 
+#include <primitives/transaction.h>
+
 #include <QByteArray>
 #include <QCoreApplication>
 #include <QString>
@@ -23,7 +25,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     (void)PsbtQmlModel::LocalFilePath(path);
 
-    PartiallySignedTransaction psbt;
+    CMutableTransaction empty_tx;
+    PartiallySignedTransaction psbt{empty_tx};
     (void)PsbtQmlModel::LoadPsbtFromFile(path, psbt);
     return 0;
 }
