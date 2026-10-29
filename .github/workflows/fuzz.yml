@@ -172,7 +172,7 @@ jobs:
           EXTERNAL_REPO_PAT: ${{ secrets.EXTERNAL_REPO_PAT }}
         run: |
           if [ -n "${EXTERNAL_REPO_PAT}" ]; then
-            git clone https://x-access-token:${EXTERNAL_REPO_PAT}@github.com/bitcoincore-dev/gui-qml-fuzzing.git fuzzing_repo || true
+            git clone https://x-access-token:${EXTERNAL_REPO_PAT}@github.com/bitcoincore-dev/qa-assets.git fuzzing_repo || true
           fi
           for f in build/test/fuzz/fuzz_*; do
             name=$(basename "$f")
