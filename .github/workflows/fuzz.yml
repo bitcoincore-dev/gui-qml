@@ -7,15 +7,14 @@ on:
     branches: [ main, master, develop ]
   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.sanitizer || 'default' }}
-  cancel-in-progress: true
-
 jobs:
   fuzz:
     name: Fuzz QML Backend (${{ matrix.sanitizer }})
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.sanitizer }}
+      cancel-in-progress: true
     strategy:
       fail-fast: false
       matrix:
