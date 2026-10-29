@@ -16,7 +16,7 @@ endif()
 set(FUZZ_SANITIZERS "fuzzer,address,undefined" CACHE STRING "Sanitizers enabled for fuzz targets")
 
 function(add_fuzz_target name)
-    add_executable(${name} ${ARGN})
+    add_executable(${name} fuzz_common.cpp ${ARGN})
     target_include_directories(${name} PRIVATE
         ${PROJECT_SOURCE_DIR}
         ${PROJECT_SOURCE_DIR}/bitcoin/src
