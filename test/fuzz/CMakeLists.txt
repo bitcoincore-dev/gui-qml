@@ -21,6 +21,8 @@ function(add_fuzz_target name)
         ${PROJECT_SOURCE_DIR}
         ${PROJECT_SOURCE_DIR}/bitcoin/src
         ${PROJECT_BINARY_DIR}/bitcoin/src
+        ${PROJECT_SOURCE_DIR}/test
+        ${PROJECT_SOURCE_DIR}/test/mocks
     )
     target_link_libraries(${name} PRIVATE
         bitcoinqml
@@ -61,3 +63,4 @@ add_fuzz_target(fuzz_bitcoin_address_format fuzz_bitcoin_address_format.cpp)
 add_fuzz_target(fuzz_bitcoin_amount_format fuzz_bitcoin_amount_format.cpp)
 add_fuzz_target(fuzz_psbtqmlmodel fuzz_psbtqmlmodel.cpp)
 add_fuzz_target(fuzz_qml_bitcoinunits_extra fuzz_qml_bitcoinunits_extra.cpp)
+add_fuzz_target(fuzz_nodemodel fuzz_nodemodel.cpp)
