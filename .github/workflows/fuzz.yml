@@ -22,11 +22,15 @@ on:
         required: false
         default: true
         type: boolean
-      run_macos:
-        description: 'Also run on macOS'
+      os:
+        description: 'Operating system(s) to fuzz on'
         required: false
-        default: false
-        type: boolean
+        default: 'ubuntu-latest'
+        type: choice
+        options:
+          - 'ubuntu-latest'
+          - 'macos-14'
+          - 'both'
       deploy_artifacts:
         description: 'Push corpus/coverage/crashes to the external repository'
         required: false
@@ -48,9 +52,16 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y jq
       - id: build
         run: |
-          oses=("ubuntu-latest")
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.run_macos }}" = "true" ]; then
-            oses+=("macos-14")
+          oses=()
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            oses=("ubuntu-latest")
+          else
+            case "${{ inputs.os }}" in
+              ubuntu-latest) oses=("ubuntu-latest") ;;
+              macos-14) oses=("macos-14") ;;
+              both) oses=("ubuntu-latest" "macos-14") ;;
+              *) oses=("ubuntu-latest") ;;
+            esac
           fi
           sanitizers=()
           if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
