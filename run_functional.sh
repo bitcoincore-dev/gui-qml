@@ -8,6 +8,11 @@ TESTS=("$@")
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
+# Keep Unix socket paths short on macOS.
+: "${TMPDIR:=/tmp/qmltest}"
+export TMPDIR
+mkdir -p "$TMPDIR"
+
 BITCOIND="${BITCOIND:-$ROOT_DIR/$BUILD_DIR/bin/bitcoind}"
 BITCOIN_CORE_APP="${BITCOIN_CORE_APP:-$ROOT_DIR/$BUILD_DIR/bin/bitcoin-core-app}"
 
