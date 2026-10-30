@@ -9,7 +9,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
 # Keep Unix socket paths short on macOS.
-: "${TMPDIR:=/tmp/qmltest}"
+TMPDIR="/tmp/qmltest"
 export TMPDIR
 mkdir -p "$TMPDIR"
 
