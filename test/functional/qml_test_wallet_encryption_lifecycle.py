@@ -282,7 +282,8 @@ def case_update_password(harness, checkpoints):
     gui.settle()
     gui.wait_for_property("walletPasswordSaveButton", "enabled", True, timeout_ms=5000)
     gui.click("walletPasswordSaveButton")
-    gui.wait_for_page("walletSettingsPage", timeout_ms=10000)
+    gui.wait_for_property("walletPasswordResultBanner", "visible", True, timeout_ms=10000)
+    assert "successfully" in gui.get_text("walletPasswordErrorText").lower()
     checkpoints.checkpoint("password updated", gui)
 
     assert not try_passphrase(harness.gui_rpc_port, wallet_name, WALLET_PASSWORD)
