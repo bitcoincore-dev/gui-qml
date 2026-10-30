@@ -14,6 +14,8 @@ trap cleanup INT TERM
 BUILD_DIR="${1:-build-fuzz}"
 MAX_TIME="${2:-30}"
 MAX_LEN="${3:-4096}"
+shift 3 2>/dev/null || true
+TARGETS=("$@")
 SANITIZERS="${FUZZ_SANITIZERS:-fuzzer,address,undefined}"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
