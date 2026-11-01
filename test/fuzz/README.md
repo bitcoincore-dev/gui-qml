@@ -60,6 +60,8 @@ python3 test/fuzz/qml_security_lint.py qml
 - `fuzz_bitcoin_amount` / `fuzz_bitcoin_amount_format` — amount parsing/formatting
 - `fuzz_bitcoin_units` / `fuzz_qml_bitcoinunits_extra` — unit labels and conversions
 - `fuzz_bitcoin_uri` / `fuzz_bitcoin_uri_model` — `bitcoin:` URI parsing
+- `fuzz_bitcoin_conf` / `fuzz_bitcoin_conf_parsing` — `bitcoin.conf` parsing and option interpretation
+- `fuzz_bitcoin_conf_files` — `bitcoin.conf` file loading via `ArgsManager::ReadConfigFiles`, including include-file handling
 - `fuzz_qml_util` — `QmlUtil` helpers
 - `fuzz_qml_datadir` — data-dir path normalization and validation
 
